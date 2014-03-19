@@ -14,7 +14,7 @@ RUN apt-get update && apt-get -yq upgrade
 #
 # install this container's packages
 #
-RUN apt-get install -y openssh-server curl supervisor openjdk-7-jdk
+RUN apt-get update && apt-get install -y openssh-server curl git supervisor openjdk-7-jdk
 
 #
 # customization
@@ -33,7 +33,7 @@ RUN curl -s https://raw.github.com/technomancy/leiningen/stable/bin/lein -o /usr
 #
 # code
 #
-ADD . /src
+RUN cd / && git clone https://github.com/aslag/seq_http.git
 # service started by supervisord
 
 EXPOSE 22 3000

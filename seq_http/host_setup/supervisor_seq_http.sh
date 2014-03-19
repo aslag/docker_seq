@@ -11,7 +11,7 @@ stdout_logfile=/var/log/sshd.out.log
 [program:seq_http]
 environment=
   LEIN_ROOT=true,
-directory=/src/
+directory=/seq_http/
 command=/usr/local/bin/lein ring server-headless 3000
 autostart=true
 autrestart=true

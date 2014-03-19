@@ -14,7 +14,7 @@ RUN apt-get update && apt-get -yq upgrade
 #
 # install this container's packages
 #
-RUN apt-get install -y git build-essential libssl-dev
+RUN apt-get update && apt-get install -y git build-essential libssl-dev
 
 #
 # customization
