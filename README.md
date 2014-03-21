@@ -36,7 +36,7 @@ The benchmark scripts take args: `num_of_threads` `num_of_concurrent_connections
 
 #### Container Customization
 
-(optional) Given server ssh keys in ~/.ssh/servers/testo/, execute the following to customize the container and re-tag it `aslag/seq_http:vanilla`:
+(optional) Given server ssh keys in ~/.ssh/servers/testo/, execute the following to customize the container and re-tag it `aslag/seq_http:vanilla` (note that if you have a running instance of aslag/seq_http:vanilla, you must stop and remove it first):
 
     tar -cf - -C ~/.ssh/servers/testo/ . | docker run -i aslag/seq_http:vanilla sh -c '(cd /etc/ssh/ && tar -xpf -)' && (CID=$( docker ps -a | grep 'aslag/seq_http' | cut -d' ' -f1 ); docker commit $CID aslag/seq_http:vanilla; docker rm $CID )
 
