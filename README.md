@@ -20,7 +20,9 @@ For Ubuntu, see http://docs.docker.io/en/latest/installation/ubuntulinux/. For v
 
     docker run -d --name seq_http -p 3322:22 aslag/seq_http:vanilla
 
-    docker run --rm -i -t --link seq_http:service aslag/seq_test /benchmark_scripts/count.sh 2 20 10
+    docker run --rm -i -t --link seq_http:service aslag/seq_test /benchmark_scripts/fib.sh 1 10 20
+
+    docker run --rm -i -t --link seq_http:service aslag/seq_test /benchmark_scripts/count.sh 2 12 60
 
 `count.sh` takes args: `num_of_threads` `num_of_concurrent_connections` `test_duration`. These correspond to `wrks`' `-t` `-c` and `-d` (in seconds)
 
