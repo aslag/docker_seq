@@ -22,8 +22,9 @@ RUN apt-get update && apt-get install -y openssh-server curl git supervisor open
 RUN echo 'root:testo' | chpasswd
 
 ADD ./host_setup /host_setup
+# configure sshd via supervisor in case of dev environment
 RUN /host_setup/ssh_setup.sh
-RUN /host_setup/supervisor_seq_http.sh
+RUN /host_setup/supervisor_setup.sh
 
 #
 # Leiningen
@@ -31,10 +32,14 @@ RUN /host_setup/supervisor_seq_http.sh
 RUN curl -s https://raw.github.com/technomancy/leiningen/stable/bin/lein -o /usr/local/bin/lein && chmod a+x /usr/local/bin/lein
 
 #
-# code
+# build jar
 #
-RUN cd / && git clone https://github.com/aslag/seq_http.git
-# service started by supervisord
+RUN cd / && git clone https://github.com/aslag/seq_http.git && cd /seq_http && LEIN_ROOT=true lein ring uberjar
 
-EXPOSE 22 3000
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
+#
+# copy host scripts
+#
+ADD ./host /host
+
+EXPOSE 3000
+CMD ["/host/exec_seq_http.sh"]

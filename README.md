@@ -20,7 +20,7 @@ For Ubuntu, see http://docs.docker.io/en/latest/installation/ubuntulinux/. For v
 
     docker run -d --name seq_http -p 3322:22 aslag/seq_http:vanilla
 
-    docker run --rm -i -t --link seq_http:service seq_test /benchmark_scripts/count.sh 2 20 10
+    docker run --rm -i -t --link seq_http:service aslag/seq_test /benchmark_scripts/count.sh 2 20 10
 
 `count.sh` takes args: `num_of_threads` `num_of_concurrent_connections` `test_duration`. These correspond to `wrks`' `-t` `-c` and `-d` (in seconds)
 
@@ -28,22 +28,39 @@ For Ubuntu, see http://docs.docker.io/en/latest/installation/ubuntulinux/. For v
 
 #### Container Customization
 
-**Note** If you run either or both of the below options, you'll have to start the `seq_http` container with the supervisor command because committing an image saves the last-executed command and re-runs it. (TODO: find a way around this.) Starting it up might look like this:
 
-    docker run -d --name seq_http -p 3322:22 aslag/seq_http:mykey /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
-
-(optional) Given server ssh keys in ~/.ssh/servers/testo/, execute the following to customize the container and re-tag it aslag/seq_http:vanilla.
+(optional) Given server ssh keys in ~/.ssh/servers/testo/, execute the following to customize the container and re-tag it `aslag/seq_http:vanilla`:
 
     tar -cf - -C ~/.ssh/servers/testo/ . | docker run -i aslag/seq_http:vanilla sh -c '(cd /etc/ssh/ && tar -xpf -)' && (CID=$( docker ps -a | grep 'aslag/seq_http' | cut -d' ' -f1 ); docker commit $CID aslag/seq_http:vanilla; docker rm $CID )
 
-(optional) Given a client ssh pubkey in ~/.ssh/id_rsa.pub, execute the following to customize the container and tag it aslag/seq_http:mykey.
+(optional) Given a client ssh pubkey in ~/.ssh/id_rsa.pub, execute the following to customize the container and tag it `aslag/seq_http:mykey`:
 
     cat ~/.ssh/id_rsa.pub | docker run -i aslag/seq_http:vanilla sh -c 'cat > /root/.ssh/authorized_keys && chmod 600 /root/.ssh/authorized_keys' && (CID=$( docker ps -a | grep 'aslag/seq_http' | cut -d' ' -f1 ); docker commit $CID aslag/seq_http:mykey; docker rm $CID )
 
-#### Workstation SSHFS Usage
+Start seq_http docker container (this one assumes you've setup an SSH key and retagged the container) and invoke supervisord to start the ssh daemon:
+
+    docker run -d --name seq_http -p 3000:3000 -p 3322:22 aslag/seq_http:mykey /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
+
+#### Workstation SSHFS Setup and Mount
 
     cd ~/projects && git clone https://github.com/aslag/seq_http.git
-    sshfs -o uid=$( id -u ),gid=$( id -g ) localhost:/seq_http seq_http -p 3322
+    sshfs -o nonempty -o uid=$( id -u ),gid=$( id -g ) root@localhost:/seq_http seq_http -p 3322
+
+#### Dev Workflow
+
+SSH to the container:
+
+    ssh -oPort=3322 root@localhost
+
+Start the dev server:
+
+    cd /seq_http && LEIN_ROOT=true lein ring server-headless 3000
+
+Because the source dir is mounted with sshfs from the host system into the container, you can edit source files in the host system and they'll be available to the runtime in the container. Note also that the container is executed in development mode and will hot-reload source changes.
+
+If you started the seq_http daemon with `-p 3000:3000` (as mentioned above) traffic originating from the host system (your workstation, probably) will be forwarded to the dev container's server. You can test that with a command like this:
+
+    curl -i http://localhost:3000/api/count/5
 
 ### Docker Common
 
