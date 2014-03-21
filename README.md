@@ -50,6 +50,8 @@ Start seq_http docker container (this one assumes you've setup an SSH key and re
 
 Note the use of the '-p' switch. This forwards the host's port before the colon (3322 in one case) to the port 22 inside the container.
 
+Note also that if you haven't set up keys (the optional steps), you'll need to use the root password to login as root over SSH. The root password is 'testo'.
+
 #### Workstation SSHFS Setup and Mount
 
     cd ~/projects && git clone https://github.com/aslag/seq_http.git
@@ -100,3 +102,5 @@ For more information about docker commands, see: http://docs.docker.io/en/latest
 
 ### Known Issues
 * This sample hard-codes some config information (like the port 3000 used by *seq_http*). It is probably desirable to make this a configuration option.
+
+* The SSH key setup procedure is a bit crufty and the details could be hidden in a script that does condition checking before executing. Fix that.
