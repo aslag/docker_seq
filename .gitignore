@@ -1,9 +1,9 @@
-*/target
-*/lib
-*/classes
-*/checkouts
+*target
+*lib
+*classes
+*checkouts
 *.jar
 *.class
-*/.lein-*
-*/.nrepl-port
+*.lein-*
+*.nrepl-port
 *.sw*
