@@ -52,10 +52,12 @@ Note the use of the '-p' switch. This forwards the host's port before the colon 
 
 Note also that if you haven't set up keys (the optional steps), you'll need to use the root password to login as root over SSH. The root password is 'testo'.
 
-#### Workstation SSHFS Setup and Mount
+#### Workstation Setup
 
-    cd ~/projects && git clone https://github.com/aslag/seq_http.git
-    sshfs -o nonempty -o uid=$( id -u ),gid=$( id -g ) root@localhost:/seq_http seq_http -p 3322
+    cd ~/projects && mkdir seq_http-CONTAINER
+    sshfs -o nonempty -o uid=$( id -u ),gid=$( id -g ) root@localhost:/seq_http seq_http-CONTAINER -p 3322
+
+**Warning**: This sshfs command mounts the container's source dir for the project on your workstation. Any changes made in the source dir must be copied or committed before the dev container is restarted or those changes will be lost. Instructions on checking out source to your workstation and synchronizing filesystems are forthcoming.
 
 #### Dev Workflow
 
@@ -67,7 +69,7 @@ Start the dev server:
 
     cd /seq_http && LEIN_ROOT=true lein ring server-headless 3000
 
-Because the source dir is mounted with sshfs from the host system into the container, you can edit source files in the host system and they'll be available to the runtime in the container. Note also that the container is executed in development mode and will hot-reload source changes.
+Note that the app in the container is executed in development mode and will hot-reload source changes.
 
 If you started the seq_http daemon with `-p 3000:3000` (as mentioned above) traffic originating from the host system (your workstation, probably) will be forwarded to the dev container's server. You can test that with a command like this:
 
@@ -101,6 +103,8 @@ For more information about docker commands, see: http://docs.docker.io/en/latest
 * I use supervisord to start the SSH service in the seq_http container when used as a dev environment. This can easily be added-to with other persistent services.
 
 ### Known Issues
+* The SSHFS mount doesn't create a natural way to work with a project's source. It'd be better to use an intelligent FS synchronizing scheme that would synchronize source trees between the container and the host. It should ignore copying binaries and other artifacts that might be in the project dir.
+
 * This sample hard-codes some config information (like the port 3000 used by *seq_http*). It is probably desirable to make this a configuration option.
 
 * The SSH key setup procedure is a bit crufty and the details could be hidden in a script that does condition checking before executing. Fix that.
